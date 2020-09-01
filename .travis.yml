@@ -1,0 +1,41 @@
+sudo: required
+
+language: generic 
+
+services:
+  - docker 
+
+before_install:
+  - docker build -t haxelegide/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true haxelegide/react-test npm run test
+
+# deploy:
+#   provider: elasticbeanstack
+#   region: "us-east-1"
+#   app: "docker-react"
+#   env: "DockerReact-env"
+#   bucket_name: elasticbeanstalk-us-east-1-161221511123
+#   bucket_path: "docker-react"
+
+#   on:
+#     branch: master
+
+#   access_key_id: $AWS_ACCESS_KEY
+#   secret_access_key: $AWS_SECRET_KEY 
+
+
+after_success:
+  - docker build -t haxelegide/multi-client  ./client
+  - docker build -t haxelegide/multi-nginx  ./nginx
+  - docker build -t haxelegide/multi-server  ./server
+  - docker build -t haxelegide/multi-worker ./worker
+  # log into docker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # push prod image to docker hub
+  - docker push haxelegide/multi-client
+  - docker push haxelegide/multi-nginx
+  - docker push haxelegide/multi-server
+  - docker push haxelegide/multi-worker
+  
