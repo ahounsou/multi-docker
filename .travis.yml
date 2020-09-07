@@ -39,3 +39,16 @@ after_success:
   - docker push haxelegide/multi-server
   - docker push haxelegide/multi-worker
   
+deploy:
+  provider: elasticbeanstack
+  region: "us-east-1"
+  app: "multi-docker"
+  env: "MultiDocker-env"
+  bucket_name: arn:aws:s3:::elasticbeanstalk-us-east-1-161221511123
+  bucket_path: "docker-multi"
+
+  on:
+    branch: master
+
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
